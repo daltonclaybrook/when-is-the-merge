@@ -7,6 +7,7 @@
   "private": false,
   "scripts": {
     "start": "ts-node src/index.ts",
+    "start-prod": "yarn -s build && node dist/index.js",
     "build": "tsc"
   },
   "devDependencies": {
