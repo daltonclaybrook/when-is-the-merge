@@ -1,10 +1,14 @@
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
+import ReactGA from 'react-ga';
 import './App.css';
 import { useCountdown } from './hooks/useCountdown';
 import { useEstimatedMergeInfo, EstimatedMergeInfo } from './hooks/useEstimatedMergeInfo';
 
 const App: FC = () => {
     const mergeInfo = useEstimatedMergeInfo();
+    useEffect(() => {
+        ReactGA.pageview(window.location.pathname);
+    }, []);
 
     return (
         <div className="App">

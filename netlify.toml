@@ -4,3 +4,4 @@ command = "CI= yarn build"
 
 [build.environment]
 REACT_APP_API_BASE_URL = "https://when-is-the-merge.herokuapp.com"
+REACT_APP_GA_TRACKING_ID = "UA-238583477-1"
