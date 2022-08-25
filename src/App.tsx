@@ -13,7 +13,10 @@ const App: FC = () => {
     return (
         <div className="App">
             <h1>
-                When is <i>The Merge</i>?
+                When is{' '}
+                <a href="https://blog.ethereum.org/2022/08/24/mainnet-merge-announcement/" target="_blank" rel="noreferrer">
+                    <i>The Merge</i>?
+                </a>
             </h1>
             {mergeInfo && <MergeInfo {...mergeInfo} />}
             {!mergeInfo && <p>Loading...</p>}
