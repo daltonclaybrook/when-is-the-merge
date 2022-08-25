@@ -36,7 +36,9 @@ const MergeInfo: FC<EstimatedMergeInfo> = ({
             <h3>{mergeDate.toLocaleString()}</h3>
             <p>(estimated)</p>
             <hr />
-            <h3>{latestBlockNumber}</h3>
+            <a href={`https://etherscan.io/block/${latestBlockNumber}`} target="_blank" rel="noreferrer">
+                <h3>{latestBlockNumber}</h3>
+            </a>
             <p>latest block number</p>
             <hr />
             <h3>{estimatedMergeBlockNumber}</h3>
