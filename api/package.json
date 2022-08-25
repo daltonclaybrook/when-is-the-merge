@@ -7,8 +7,9 @@
   "private": false,
   "scripts": {
     "start": "ts-node src/index.ts",
-    "start-prod": "yarn -s build && node dist/index.js",
-    "build": "tsc"
+    "start-prod": "yarn -s tsc && node dist/index.js",
+    "tsc": "tsc",
+    "postinstall": "yarn -s tsc"
   },
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.1",
