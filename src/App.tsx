@@ -34,6 +34,7 @@ const MergeInfo: FC<EstimatedMergeInfo> = ({
         <div>
             <h2>{countdownString}</h2>
             <h3>{mergeDate.toLocaleString()}</h3>
+            <p>(estimated)</p>
             <hr />
             <h3>{latestBlockNumber}</h3>
             <p>latest block number</p>
