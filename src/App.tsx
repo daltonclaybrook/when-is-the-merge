@@ -1,4 +1,4 @@
-import { FC, useEffect } from 'react';
+import { FC, PropsWithChildren, useEffect } from 'react';
 import ReactGA from 'react-ga';
 import './App.css';
 import { useCountdown } from './hooks/useCountdown';
@@ -19,7 +19,12 @@ const App: FC = () => {
                 {mergeInfo && <DateAndCountdown {...mergeInfo} />}
                 {!mergeInfo && <p>Loading...</p>}
             </div>
+
             {mergeInfo && <BottomGrid {...mergeInfo} />}
+
+            <a href="https://ethereum.org/" target="_blank" rel="noreferrer">
+                <img style={{ marginTop: '74px' }} src="/ethereum.png" alt="Ethereum" />
+            </a>
         </div>
     );
 };
@@ -94,12 +99,28 @@ interface LabelPairProps {
 const LabelPair: FC<LabelPairProps> = ({ label, value, size, linkURL }) => (
     <div className="LabelPair">
         <h6 className={`Label ${size}`}>{label}</h6>
-        <a className="LabelPairLinkContainer" href={linkURL} target="_blank" rel="noreferrer">
+        <LinkIfPresent linkURL={linkURL}>
             <h3 className={`Value ${size}`}>{value}</h3>
             {linkURL && <img src={arrowSVG} alt="Arrow" />}
-        </a>
+        </LinkIfPresent>
     </div>
 );
+
+interface LinkIfPresentProps {
+    linkURL?: string;
+}
+
+const LinkIfPresent: FC<PropsWithChildren<LinkIfPresentProps>> = ({ linkURL, children }) => {
+    if (linkURL) {
+        return (
+            <a className="LabelPairLinkContainer" href={linkURL} target="_blank" rel="noreferrer">
+                {children}
+            </a>
+        );
+    } else {
+        return <>{children}</>;
+    }
+};
 
 // Helper functions
 
