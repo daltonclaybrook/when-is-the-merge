@@ -4,6 +4,7 @@ import './App.css';
 import { useCountdown } from './hooks/useCountdown';
 import { useEstimatedMergeInfo, EstimatedMergeInfo } from './hooks/useEstimatedMergeInfo';
 import logoSVG from './svg/logo.svg';
+import arrowSVG from './svg/arrow.svg';
 
 const App: FC = () => {
     const mergeInfo = useEstimatedMergeInfo();
@@ -15,7 +16,7 @@ const App: FC = () => {
         <div className="Container">
             <div className="TopSection">
                 <Logo />
-                {mergeInfo && <MergeInfo {...mergeInfo} />}
+                {mergeInfo && <DateAndCountdown {...mergeInfo} />}
                 {!mergeInfo && <p>Loading...</p>}
             </div>
             {mergeInfo && <BottomGrid {...mergeInfo} />}
@@ -32,49 +33,16 @@ const Logo: FC = () => (
     </div>
 );
 
-const MergeInfo: FC<EstimatedMergeInfo> = ({
-    latestBlockNumber,
-    latestTotalDifficulty,
-    terminalTotalDifficulty,
-    estimatedMergeBlockNumber,
-    estimatedMergeDate,
-}) => {
+const DateAndCountdown: FC<EstimatedMergeInfo> = ({ estimatedMergeDate }) => {
     const mergeDate = new Date(estimatedMergeDate * 1000);
     const countdownString = useCountdown(mergeDate) ?? '';
     return (
         <>
             <LabelPair size="Large" label="Estimated date" value={formatDate(mergeDate)} />
             <LabelPair size="Large" label="Countdown" value={countdownString} />
-
-            {/* <a href={`https://etherscan.io/block/${latestBlockNumber}`} target="_blank" rel="noreferrer">
-                <h3>{latestBlockNumber}</h3>
-            </a>
-            <p>latest block number</p>
-            <hr />
-            <h3>{estimatedMergeBlockNumber}</h3>
-            <p>estimated merge block number</p>
-            <hr />
-            <h3>{formatNumber(latestTotalDifficulty)}</h3>
-            <p>latest total difficulty</p>
-            <hr />
-            <h3>{formatNumber(terminalTotalDifficulty)}</h3>
-            <p>terminal total difficulty</p> */}
         </>
     );
 };
-
-interface LabelPairProps {
-    label: string;
-    value: string;
-    size: 'Small' | 'Medium' | 'Large';
-}
-
-const LabelPair: FC<LabelPairProps> = ({ label, value, size }) => (
-    <div className="Pair">
-        <h6 className={`Label ${size}`}>{label}</h6>
-        <h3 className={`Value ${size}`}>{value}</h3>
-    </div>
-);
 
 const BottomGrid: FC<EstimatedMergeInfo> = ({
     latestBlockNumber,
@@ -87,9 +55,14 @@ const BottomGrid: FC<EstimatedMergeInfo> = ({
 
         <div className="BottomRow">
             <div className="BottomBox">
-                <LabelPair size="Medium" label="Latest block" value={`${latestBlockNumber}`} />
+                <LabelPair
+                    size="Medium"
+                    label="Latest block"
+                    value={`${latestBlockNumber}`}
+                    linkURL={`https://etherscan.io/block/${latestBlockNumber}`}
+                />
             </div>
-            <div className="VerticalLine" />
+            <div className="BoxSeparator" />
             <div className="BottomBox">
                 <LabelPair size="Medium" label="Estimated merge block" value={`${estimatedMergeBlockNumber}`} />
             </div>
@@ -101,7 +74,7 @@ const BottomGrid: FC<EstimatedMergeInfo> = ({
             <div className="BottomBox">
                 <LabelPair size="Small" label="Latest total difficulty" value={formatNumber(latestTotalDifficulty)} />
             </div>
-            <div className="VerticalLine" />
+            <div className="BoxSeparator" />
             <div className="BottomBox">
                 <LabelPair size="Small" label="Terminal total difficulty" value={formatNumber(terminalTotalDifficulty)} />
             </div>
@@ -110,6 +83,25 @@ const BottomGrid: FC<EstimatedMergeInfo> = ({
         <div className="HorizontalLine" />
     </div>
 );
+
+interface LabelPairProps {
+    label: string;
+    value: string;
+    size: 'Small' | 'Medium' | 'Large';
+    linkURL?: string;
+}
+
+const LabelPair: FC<LabelPairProps> = ({ label, value, size, linkURL }) => (
+    <div className="LabelPair">
+        <h6 className={`Label ${size}`}>{label}</h6>
+        <a className="LabelPairLinkContainer" href={linkURL} target="_blank" rel="noreferrer">
+            <h3 className={`Value ${size}`}>{value}</h3>
+            {linkURL && <img src={arrowSVG} alt="Arrow" />}
+        </a>
+    </div>
+);
+
+// Helper functions
 
 const formatNumber = (string: string) => {
     const formatter = new Intl.NumberFormat();
