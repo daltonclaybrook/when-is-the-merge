@@ -23,7 +23,7 @@ const App: FC = () => {
             {mergeInfo && <BottomGrid {...mergeInfo} />}
 
             <a href="https://ethereum.org/" target="_blank" rel="noreferrer">
-                <img style={{ marginTop: '74px' }} src="/ethereum.png" alt="Ethereum" />
+                <img className="EthereumLogo" src="/ethereum.png" alt="Ethereum" />
             </a>
         </div>
     );

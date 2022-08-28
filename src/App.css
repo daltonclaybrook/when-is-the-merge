@@ -146,6 +146,10 @@ p {
     height: 336px;
 }
 
+.EthereumLogo {
+    margin-top: 74px;
+}
+
 @media screen and (max-width: 800px) {
     .Container {
         gap: 80px;
@@ -187,5 +191,9 @@ p {
 
     .BottomBox {
         height: 200px;
+    }
+
+    .EthereumLogo {
+        margin-top: 0px;
     }
 }
