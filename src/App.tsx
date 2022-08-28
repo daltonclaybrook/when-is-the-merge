@@ -3,6 +3,7 @@ import ReactGA from 'react-ga';
 import './App.css';
 import { useCountdown } from './hooks/useCountdown';
 import { useEstimatedMergeInfo, EstimatedMergeInfo } from './hooks/useEstimatedMergeInfo';
+import logoSVG from './svg/logo.svg';
 
 const App: FC = () => {
     const mergeInfo = useEstimatedMergeInfo();
@@ -11,18 +12,25 @@ const App: FC = () => {
     }, []);
 
     return (
-        <div className="App">
-            <h1>
-                When is{' '}
-                <a href="https://blog.ethereum.org/2022/08/24/mainnet-merge-announcement/" target="_blank" rel="noreferrer">
-                    <i>The Merge</i>?
-                </a>
-            </h1>
-            {mergeInfo && <MergeInfo {...mergeInfo} />}
-            {!mergeInfo && <p>Loading...</p>}
+        <div className="Container">
+            <div className="TopSection">
+                <Logo />
+                {mergeInfo && <MergeInfo {...mergeInfo} />}
+                {!mergeInfo && <p>Loading...</p>}
+            </div>
+            {mergeInfo && <BottomGrid {...mergeInfo} />}
         </div>
     );
 };
+
+const Logo: FC = () => (
+    <div className="LogoContainer">
+        <h1>When is The Merge?</h1>
+        <a href="https://blog.ethereum.org/2022/08/24/mainnet-merge-announcement/" target="_blank" rel="noreferrer">
+            <img className="Logo" src={logoSVG} alt="The Merge Logo" />
+        </a>
+    </div>
+);
 
 const MergeInfo: FC<EstimatedMergeInfo> = ({
     latestBlockNumber,
@@ -32,14 +40,13 @@ const MergeInfo: FC<EstimatedMergeInfo> = ({
     estimatedMergeDate,
 }) => {
     const mergeDate = new Date(estimatedMergeDate * 1000);
-    const countdownString = useCountdown(mergeDate);
+    const countdownString = useCountdown(mergeDate) ?? '';
     return (
-        <div>
-            <h2>{countdownString}</h2>
-            <h3>{mergeDate.toLocaleString()}</h3>
-            <p>(estimated)</p>
-            <hr />
-            <a href={`https://etherscan.io/block/${latestBlockNumber}`} target="_blank" rel="noreferrer">
+        <>
+            <LabelPair size="Large" label="Estimated date" value={formatDate(mergeDate)} />
+            <LabelPair size="Large" label="Countdown" value={countdownString} />
+
+            {/* <a href={`https://etherscan.io/block/${latestBlockNumber}`} target="_blank" rel="noreferrer">
                 <h3>{latestBlockNumber}</h3>
             </a>
             <p>latest block number</p>
@@ -51,14 +58,57 @@ const MergeInfo: FC<EstimatedMergeInfo> = ({
             <p>latest total difficulty</p>
             <hr />
             <h3>{formatNumber(terminalTotalDifficulty)}</h3>
-            <p>terminal total difficulty</p>
-        </div>
+            <p>terminal total difficulty</p> */}
+        </>
     );
 };
+
+interface LabelPairProps {
+    label: string;
+    value: string;
+    size: 'Small' | 'Large';
+}
+
+const LabelPair: FC<LabelPairProps> = ({ label, value, size }) => (
+    <div className="Pair">
+        <h6 className={`Label ${size}`}>{label}</h6>
+        <h3 className={`Value ${size}`}>{value}</h3>
+    </div>
+);
+
+const BottomGrid: FC<EstimatedMergeInfo> = ({ latestBlockNumber }) => (
+    <div className="BottomSection">
+        <div className="HorizontalLine" />
+
+        <div className="BottomRow">
+            <div className="BottomBox">
+                <LabelPair size="Small" label="Latest block" value={`${latestBlockNumber}`} />
+            </div>
+            <div className="VerticalLine" />
+            <div className="BottomBox"></div>
+        </div>
+
+        <div className="HorizontalLine" />
+
+        <div className="BottomRow">
+            <div className="BottomBox"></div>
+            <div className="VerticalLine" />
+            <div className="BottomBox"></div>
+        </div>
+
+        <div className="HorizontalLine" />
+    </div>
+);
 
 const formatNumber = (string: string) => {
     const formatter = new Intl.NumberFormat();
     return formatter.format(BigInt(string));
+};
+
+const formatDate = (date: Date) => {
+    const dateFormatter = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    const timeFormatter = new Intl.DateTimeFormat('en-US', { hour12: true, hour: 'numeric', minute: '2-digit', second: '2-digit' });
+    return `${dateFormatter.format(date)}\n${timeFormatter.format(date)}`;
 };
 
 export default App;
