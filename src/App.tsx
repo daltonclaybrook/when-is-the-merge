@@ -1,4 +1,4 @@
-import { FC, PropsWithChildren, useEffect } from 'react';
+import { FC, PropsWithChildren, ReactNode, useEffect } from 'react';
 import ReactGA from 'react-ga';
 import './App.css';
 import { useCountdown } from './hooks/useCountdown';
@@ -91,7 +91,7 @@ const BottomGrid: FC<EstimatedMergeInfo> = ({
 
 interface LabelPairProps {
     label: string;
-    value: string;
+    value: string | ReactNode;
     size: 'Small' | 'Medium' | 'Large';
     linkURL?: string;
 }
@@ -129,10 +129,16 @@ const formatNumber = (string: string) => {
     return formatter.format(BigInt(string));
 };
 
-const formatDate = (date: Date) => {
+const formatDate = (date: Date): ReactNode => {
     const dateFormatter = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
     const timeFormatter = new Intl.DateTimeFormat('en-US', { hour12: true, hour: 'numeric', minute: '2-digit', second: '2-digit' });
-    return `${dateFormatter.format(date)}\n${timeFormatter.format(date)}`;
+    return (
+        <>
+            {dateFormatter.format(date)}
+            <br />
+            {timeFormatter.format(date)}
+        </>
+    );
 };
 
 export default App;

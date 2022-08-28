@@ -28,6 +28,7 @@ p {
     align-items: center;
     gap: 120px;
     margin: 120px 0;
+    width: 100%;
 }
 
 .TopSection {
@@ -35,7 +36,7 @@ p {
     flex-direction: column;
     align-items: center;
     gap: 120px;
-    margin: 0 200px;
+    margin: 0 120px;
 }
 
 .LogoContainer {
@@ -45,13 +46,8 @@ p {
     gap: 18px;
 }
 
-.LogoContainer > h1 {
-    font-size: 24px;
-}
-
 .Logo {
-    max-width: 680px;
-    max-height: 192px;
+    max-width: 100%;
 }
 
 .LabelPair {
@@ -75,6 +71,10 @@ p {
     text-align: center;
     overflow: hidden;
     overflow-wrap: break-word;
+}
+
+.LogoContainer > h1 {
+    font-size: 24px;
 }
 
 .LabelPair .Label.Small,
@@ -147,6 +147,15 @@ p {
 }
 
 @media screen and (max-width: 800px) {
+    .Container {
+        gap: 80px;
+        margin: 60px 0;
+    }
+
+    .TopSection {
+        margin: 0 60px;
+    }
+
     .BottomRow {
         flex-direction: column;
     }
@@ -158,5 +167,21 @@ p {
     .BoxSeparator {
         height: 1px;
         width: unset;
+    }
+
+    .LogoContainer > h1 {
+        font-size: 24px;
+    }
+
+    .LabelPair .Value.Small {
+        font-size: 24px;
+    }
+
+    .LabelPair .Value.Medium {
+        font-size: 40px;
+    }
+
+    .LabelPair .Value.Large {
+        font-size: 54px;
     }
 }
