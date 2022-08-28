@@ -20,6 +20,13 @@ export const useEstimatedMergeInfo = () => {
     const [mergeInfo, setMergeInfo] = useState<EstimatedMergeInfo | null>(null);
     useEffect(() => {
         fetchEstimatedMergeInfo().then(setMergeInfo);
+        const timer = setInterval(() => {
+            fetchEstimatedMergeInfo().then(setMergeInfo);
+        }, 30 * 1000);
+
+        return () => {
+            clearInterval(timer);
+        };
     }, []);
     return mergeInfo;
 };

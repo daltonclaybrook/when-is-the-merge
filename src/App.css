@@ -184,4 +184,8 @@ p {
     .LabelPair .Value.Large {
         font-size: 54px;
     }
+
+    .BottomBox {
+        height: 200px;
+    }
 }
