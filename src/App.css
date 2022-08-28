@@ -1,3 +1,7 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: 'Big Shoulders Display';
     font-style: normal;
@@ -55,6 +59,15 @@ p {
     flex-direction: column;
     align-items: center;
     gap: 16px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.Pair > .Label,
+.Value {
+    max-width: 100%;
+    overflow: hidden;
+    overflow-wrap: break-word;
 }
 
 .Pair > .Label,
@@ -62,11 +75,16 @@ p {
     text-align: center;
 }
 
-.Pair > .Label.Small {
+.Pair > .Label.Small,
+.Label.Medium {
     font-size: 16px;
 }
 
 .Pair > .Value.Small {
+    font-size: 40px;
+}
+
+.Pair > .Value.Medium {
     font-size: 64px;
 }
 
@@ -108,10 +126,11 @@ p {
 }
 
 .BottomBox {
+    padding: 10px;
     background-color: #ffffff;
     flex-grow: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-basis: 0;
+    width: calc(50vw - 1px);
 }

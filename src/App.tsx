@@ -66,7 +66,7 @@ const MergeInfo: FC<EstimatedMergeInfo> = ({
 interface LabelPairProps {
     label: string;
     value: string;
-    size: 'Small' | 'Large';
+    size: 'Small' | 'Medium' | 'Large';
 }
 
 const LabelPair: FC<LabelPairProps> = ({ label, value, size }) => (
@@ -76,24 +76,35 @@ const LabelPair: FC<LabelPairProps> = ({ label, value, size }) => (
     </div>
 );
 
-const BottomGrid: FC<EstimatedMergeInfo> = ({ latestBlockNumber }) => (
+const BottomGrid: FC<EstimatedMergeInfo> = ({
+    latestBlockNumber,
+    estimatedMergeBlockNumber,
+    latestTotalDifficulty,
+    terminalTotalDifficulty,
+}) => (
     <div className="BottomSection">
         <div className="HorizontalLine" />
 
         <div className="BottomRow">
             <div className="BottomBox">
-                <LabelPair size="Small" label="Latest block" value={`${latestBlockNumber}`} />
+                <LabelPair size="Medium" label="Latest block" value={`${latestBlockNumber}`} />
             </div>
             <div className="VerticalLine" />
-            <div className="BottomBox"></div>
+            <div className="BottomBox">
+                <LabelPair size="Medium" label="Estimated merge block" value={`${estimatedMergeBlockNumber}`} />
+            </div>
         </div>
 
         <div className="HorizontalLine" />
 
         <div className="BottomRow">
-            <div className="BottomBox"></div>
+            <div className="BottomBox">
+                <LabelPair size="Small" label="Latest total difficulty" value={formatNumber(latestTotalDifficulty)} />
+            </div>
             <div className="VerticalLine" />
-            <div className="BottomBox"></div>
+            <div className="BottomBox">
+                <LabelPair size="Small" label="Terminal total difficulty" value={formatNumber(terminalTotalDifficulty)} />
+            </div>
         </div>
 
         <div className="HorizontalLine" />
