@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
+import LRU from 'lru-cache';
 import BN from 'bn.js';
 
 const apiKey = process.env.ETHERSCAN_API_KEY;
@@ -52,6 +53,12 @@ const terminalTotalDifficulty = new BN('58750000000000000000000');
 /// The timestamp of the latest block that was fetched
 let timestampOfLatestBlockFetched: number = 0;
 
+/// Map of block number (base-10 string) to the estimated date of that block
+const estimatedBlockDateCache = new LRU<string, Date>({
+    max: 1000,
+    ttl: 1000 * 60 * 60, // one hour
+});
+
 /// Fetch the latest block number tag
 export const fetchBlockNumberTag = async (): Promise<string> => {
     const params = {
@@ -101,9 +108,7 @@ export const fetchEstimatedMergeInfo = async (): Promise<EstimatedMergeInfo> => 
     const averageDifficulty = calculateAverageBlockDifficulty();
     const estimatedBlocksRemaining = remainingDifficulty.div(averageDifficulty).toNumber();
     const estimatedMergeBlockNumber = latestBlockNumber.add(new BN(estimatedBlocksRemaining));
-
-    const timeUntilBlock = await fetchEstimatedTimeUntilBlock(estimatedMergeBlockNumber);
-    const estimatedMergeDate = new Date(Date.now() + timeUntilBlock * 1000);
+    const estimatedMergeDate = await getOrFetchEstimatedBlockDate(estimatedMergeBlockNumber);
 
     return {
         latestBlockNumber: latestBlockNumber.toString(10),
@@ -135,4 +140,19 @@ const calculateAverageBlockDifficulty = (): BN => {
     }, new BN(0));
     const average = total.div(new BN(latestDifficulties.length));
     return average;
+};
+
+const getOrFetchEstimatedBlockDate = async (blockNo: BN): Promise<Date> => {
+    const blockNumberString = blockNo.toString(10);
+    const cached = estimatedBlockDateCache.get(blockNumberString);
+    if (cached != null) {
+        console.log(`Using cached date for block number ${blockNumberString}`);
+        return cached;
+    }
+
+    console.log(`Fetching estimated time until block: ${blockNumberString}`);
+    const timeUntilBlock = await fetchEstimatedTimeUntilBlock(blockNo);
+    const blockDate = new Date(Date.now() + timeUntilBlock * 1000);
+    estimatedBlockDateCache.set(blockNumberString, blockDate);
+    return blockDate;
 };
