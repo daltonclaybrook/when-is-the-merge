@@ -18,10 +18,21 @@ export interface EstimatedMergeInfo {
 
 export const useEstimatedMergeInfo = () => {
     const [mergeInfo, setMergeInfo] = useState<EstimatedMergeInfo | null>(null);
+
+    const fetchAndSetMergeInfo = () => {
+        fetchEstimatedMergeInfo().then((mergeInfo) => {
+            if (mergeInfo != null) {
+                // Only set if it is non-null. This way, the users experience is still acceptable
+                // if the API returns an error.
+                setMergeInfo(mergeInfo);
+            }
+        });
+    };
+
     useEffect(() => {
-        fetchEstimatedMergeInfo().then(setMergeInfo);
+        fetchAndSetMergeInfo();
         const timer = setInterval(() => {
-            fetchEstimatedMergeInfo().then(setMergeInfo);
+            fetchAndSetMergeInfo();
         }, 30 * 1000);
 
         return () => {
