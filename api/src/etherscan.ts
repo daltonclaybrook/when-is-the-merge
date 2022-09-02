@@ -10,6 +10,19 @@ interface RPCResponse<T> {
     result: T;
 }
 
+interface EtherscanResponse<T> {
+    status: string;
+    message: string;
+    result: T;
+}
+
+interface CountdownDetails {
+    CurrentBlock: string;
+    CountdownBlock: string;
+    RemainingBlock: string;
+    EstimateTimeInSec: string;
+}
+
 export interface BlockDetails {
     difficulty: string;
     totalDifficulty: string;
@@ -38,8 +51,6 @@ const maxNumberOfDifficulties = 100;
 const terminalTotalDifficulty = new BN('58750000000000000000000');
 /// The timestamp of the latest block that was fetched
 let timestampOfLatestBlockFetched: number = 0;
-/// A guess at the average amount of time to mine a block
-const averageSecondsToMineBlock = 13.33;
 
 /// Fetch the latest block number tag
 export const fetchBlockNumberTag = async (): Promise<string> => {
@@ -65,6 +76,17 @@ export const fetchBlockDetails = async (tag: string): Promise<BlockDetails> => {
     return response.data.result;
 };
 
+export const fetchEstimatedTimeUntilBlock = async (blockNo: BN): Promise<number> => {
+    const params = {
+        module: 'block',
+        action: 'getblockcountdown',
+        blockno: blockNo.toString(10),
+        apikey: apiKey,
+    };
+    const response: AxiosResponse<EtherscanResponse<CountdownDetails>> = await axios.get(baseURL, { params });
+    return parseInt(response.data.result.EstimateTimeInSec);
+};
+
 export const fetchEstimatedMergeInfo = async (): Promise<EstimatedMergeInfo> => {
     const tag = await fetchBlockNumberTag();
     const block = await fetchBlockDetails(tag);
@@ -78,9 +100,11 @@ export const fetchEstimatedMergeInfo = async (): Promise<EstimatedMergeInfo> => 
     const remainingDifficulty = terminalTotalDifficulty.sub(latestTotalDifficulty);
     const averageDifficulty = calculateAverageBlockDifficulty();
     const estimatedBlocksRemaining = remainingDifficulty.div(averageDifficulty).toNumber();
-    const estimatedSecondsRemaining = estimatedBlocksRemaining * averageSecondsToMineBlock;
     const estimatedMergeBlockNumber = latestBlockNumber.add(new BN(estimatedBlocksRemaining));
-    const estimatedMergeDate = new Date(Date.now() + estimatedSecondsRemaining * 1000);
+
+    const timeUntilBlock = await fetchEstimatedTimeUntilBlock(estimatedMergeBlockNumber);
+    const estimatedMergeDate = new Date(Date.now() + timeUntilBlock * 1000);
+    console.log(`Time until block: ${timeUntilBlock}`);
 
     return {
         latestBlockNumber: latestBlockNumber.toString(10),
