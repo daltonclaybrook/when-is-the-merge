@@ -44,19 +44,18 @@ export interface EstimatedMergeInfo {
     estimatedMergeDate: number;
 }
 
-/// The last several known block difficulty level for use in estimations
-const latestDifficulties: BN[] = [];
-/// The max number of difficulties to store for the average calculation
-const maxNumberOfDifficulties = 100;
 /// The total difficulty that will trigger The Merge
 const terminalTotalDifficulty = new BN('58750000000000000000000');
-/// The timestamp of the latest block that was fetched
-let timestampOfLatestBlockFetched: number = 0;
 
 /// Map of block number (base-10 string) to the estimated date of that block
 const estimatedBlockDateCache = new LRU<string, Date>({
     max: 1000,
     ttl: 1000 * 60 * 60, // one hour
+});
+
+/// Map of block number (base-10 string) to the details of that block
+const cachedBlockDifficulties = new LRU<string, BlockDetails>({
+    max: 100,
 });
 
 /// Fetch the latest block number tag
@@ -96,10 +95,7 @@ export const fetchEstimatedTimeUntilBlock = async (blockNo: BN): Promise<number>
 
 export const fetchEstimatedMergeInfo = async (): Promise<EstimatedMergeInfo> => {
     const tag = await fetchBlockNumberTag();
-    const block = await fetchBlockDetails(tag);
-    updateCachedValuesWithBlock(block);
-
-    console.log(`Cached blocks: ${latestDifficulties.length}`);
+    const block = await getOrFetchBlockDetails(tag);
 
     const latestBlockNumber = new BN(block.number.slice(2), 'hex');
     const latestTotalDifficulty = new BN(block.totalDifficulty.slice(2), 'hex');
@@ -121,24 +117,32 @@ export const fetchEstimatedMergeInfo = async (): Promise<EstimatedMergeInfo> => 
 
 // Helper functions
 
-const updateCachedValuesWithBlock = (block: BlockDetails) => {
-    const timestamp = parseInt(block.timestamp.slice(2), 16);
-    if (timestamp > timestampOfLatestBlockFetched) {
-        timestampOfLatestBlockFetched = timestamp;
-        const difficulty = new BN(block.difficulty.slice(2), 'hex');
-        latestDifficulties.push(difficulty);
-        if (latestDifficulties.length > maxNumberOfDifficulties) {
-            const deleteCount = latestDifficulties.length - maxNumberOfDifficulties;
-            latestDifficulties.splice(0, deleteCount);
-        }
+const getOrFetchBlockDetails = async (tag: string): Promise<BlockDetails> => {
+    const blockNumber = new BN(tag.slice(2), 'hex');
+    const blockNumberString = blockNumber.toString(10);
+    const cached = cachedBlockDifficulties.get(blockNumberString);
+    if (cached) {
+        console.log(`Using cached details for block number ${blockNumberString}`);
+        return cached;
     }
+
+    console.log(`Fetching details for block number ${blockNumberString}`);
+    const blockDetails = await fetchBlockDetails(tag);
+    cachedBlockDifficulties.set(blockNumberString, blockDetails);
+    return blockDetails;
 };
 
 const calculateAverageBlockDifficulty = (): BN => {
-    const total = latestDifficulties.reduce((result, current) => {
-        return result.add(current);
-    }, new BN(0));
-    const average = total.div(new BN(latestDifficulties.length));
+    const cacheSize = cachedBlockDifficulties.size;
+    console.log(`Calculating average difficulty with cached blocks: ${cacheSize}`);
+
+    let total = new BN(0);
+    cachedBlockDifficulties.forEach((details) => {
+        const difficulty = new BN(details.difficulty.slice(2), 'hex');
+        total = total.add(difficulty);
+    });
+
+    const average = total.div(new BN(cacheSize));
     return average;
 };
 
