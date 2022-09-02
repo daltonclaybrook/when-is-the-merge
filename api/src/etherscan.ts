@@ -104,7 +104,6 @@ export const fetchEstimatedMergeInfo = async (): Promise<EstimatedMergeInfo> => 
 
     const timeUntilBlock = await fetchEstimatedTimeUntilBlock(estimatedMergeBlockNumber);
     const estimatedMergeDate = new Date(Date.now() + timeUntilBlock * 1000);
-    console.log(`Time until block: ${timeUntilBlock}`);
 
     return {
         latestBlockNumber: latestBlockNumber.toString(10),
