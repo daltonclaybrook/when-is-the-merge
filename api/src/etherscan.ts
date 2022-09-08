@@ -55,7 +55,7 @@ const estimatedBlockDateCache = new LRU<string, Date>({
 
 /// Map of block number (base-10 string) to the details of that block
 const cachedBlockDifficulties = new LRU<string, BlockDetails>({
-    max: 100,
+    max: 60,
 });
 
 /// Fetch the latest block number tag
@@ -79,7 +79,17 @@ export const fetchBlockDetails = async (tag: string): Promise<BlockDetails> => {
         apikey: apiKey,
     };
     const response: AxiosResponse<RPCResponse<BlockDetails>> = await axios.get(baseURL, { params });
-    return response.data.result;
+    const block = response.data.result;
+    if (
+        block == null ||
+        typeof block.difficulty !== 'string' ||
+        typeof block.number !== 'string' ||
+        typeof block.timestamp !== 'string' ||
+        typeof block.totalDifficulty !== 'string'
+    ) {
+        throw new Error(`Invalid block details: ${JSON.stringify(block, null, 2)}`);
+    }
+    return block;
 };
 
 export const fetchEstimatedTimeUntilBlock = async (blockNo: BN): Promise<number> => {
